@@ -1,16 +1,18 @@
 (ns madek.main
   (:require
     [madek.ldap-fetch :as ldap-fetch]
+    [madek.write-output-file :as write-output-file]
 
     [clojure.pprint :refer [pprint]]
-    [clojure.tools.cli :refer [parse-opts]])
+    [clojure.tools.cli :refer [parse-opts]]
+
+    [logbug.catcher :as catcher]
+    [clojure.tools.logging :as logging]
+    )
   (:gen-class))
 
 
 (declare run)
-
-
-
 
 ;;; CLI ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -50,13 +52,16 @@
       )))
 
 ;(-main "-h")
-
 ;(-main)
 
 ;;; RUN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn run [options]
-  (println "Running Madek LDAP Sync ....")
-  (ldap-fetch/run options)
-  (println "Running Madek LDAP Sync done.")
-  )
+  (catcher/snatch
+    {:return-fn (fn [_] (System/exit 0))}
+    (logging/info "Running Madek LDAP Sync ....")
+    (let [data (ldap-fetch/run options)]
+      (when (:output-file options)
+        (write-output-file/run data options)
+        ))
+    (logging/info "Running Madek LDAP Sync done.")))
