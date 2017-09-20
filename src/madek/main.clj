@@ -2,10 +2,12 @@
   (:require
     [madek.ldap-fetch :as ldap-fetch]
     [madek.data-file :as data-file]
+    [madek.sync :as sync]
 
     [clojure.pprint :refer [pprint]]
     [clojure.tools.cli :refer [parse-opts]]
 
+    [logbug.thrown]
     [logbug.catcher :as catcher]
     [clojure.tools.logging :as logging]
     )
@@ -23,7 +25,7 @@
    [nil "--input-file INOUT_FILE" "The data will be retrieved from this file instead of fetching it from LDAP"]
    [nil "--output-file OUTPUT_FILE" "The data to be synced will be written to this json file instead." :default (System/getenv "OUTPUT_FILE")]
    [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "adc3.ad.zhdk.ch"]
-   [nil "--ldap-bind-dn BIND-DN" :default "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"]
+   [nil "--ldap-bind-dn BIND_DN" :default "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"]
    [nil "--ldap-password LDAP_PASSWORD" "Password used to bind against the LDAP server." :default (System/getenv "LDAP_PASSWORD")]
    ])
 
@@ -45,6 +47,7 @@
 
 
 (defn -main [& args]
+  (logbug.thrown/reset-ns-filter-regex #"^madek\..*")
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options :in-order true)]
     (cond
@@ -64,6 +67,8 @@
     (let [data (if (:input-file options)
                  (data-file/run-read options)
                  (ldap-fetch/run options))]
-      (when (:output-file options)
-        (data-file/run-write data options)))
+      (if (:output-file options)
+        (data-file/run-write data options)
+        (sync/run data options)
+        ))
     (logging/info "Running Madek LDAP Sync done.")))

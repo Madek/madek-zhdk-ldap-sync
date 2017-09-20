@@ -1,36 +1,14 @@
-# madek-ldap-sync
+# Madek ZHdK LDAP Sync
 
-FIXME: description
+An application to sync groups from ZHdK LDAP to a Madek instance, i.e. https://medienarchiv.zhdk.ch/.
 
-## Installation
-
-Download from http://example.com/FIXME.
+This serves also as example how to use the Madek-API to manage institutional-groups.
 
 ## Usage
 
-FIXME: explanation
 
-    $ java -jar madek-ldap-sync-0.1.0-standalone.jar [args]
+    $ java -jar madek-ldap.jar [args]
 
-## Options
+    $ java -jar madek-ldap.jar --input-file tmp/test.json --madek-token MADEK_TOKEN --madek-base-url http://localhost:3100
 
-FIXME: listing of options this app accepts.
 
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2017 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
