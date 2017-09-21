@@ -27,29 +27,6 @@
     (logging/debug 'auth-info auth-info)))
 
 
-;### create new groups ########################################################
-
-(defn create-group [data options root]
-  (let [id (-> data :institutional_group_id str)
-        data (assoc data :type "InstitutionalGroup") ]
-    (logging/info "Creating group " id " with data " (cheshire/generate-string data))
-    (-> root
-        (roa/relation :groups)
-        (roa/request {} :post
-                     {:headers {"Content-Type" "application/json"}
-                      :body (cheshire/generate-string data)})
-        )))
-
-(defn create-missing-igroups
-  "Create every group found in lgroups but not in igroups."
-  [root options igroups lgroups]
-  (logging/debug (type igroups))
-  (logging/debug (type lgroups))
-  (doseq [id (set/difference (-> lgroups keys set)
-                             (-> igroups keys set))]
-    (create-group (get lgroups id) options root)))
-
-
 ;### іgroups ##################################################################
 
 (defn get-institutional-groups
@@ -71,14 +48,65 @@
     cheshire/generate-string
     (cheshire/parse-string keyword)))
 
+
+;### create new groups ########################################################
+
+(defn create-group [data options root]
+  (let [id (-> data :institutional_group_id str)
+        data (assoc data :type "InstitutionalGroup") ]
+    (logging/info "Creating group " id " with data " (cheshire/generate-string data))
+    (-> root
+        (roa/relation :groups)
+        (roa/request {} :post
+                     {:headers {"Content-Type" "application/json"}
+                      :body (cheshire/generate-string data)}))))
+
+(defn create-missing-igroups
+  "Create every group found in lgroups but not in igroups."
+  [root options lgroups]
+  (let [igroups (get-institutional-groups root)]
+    (doseq [id (set/difference (-> lgroups keys set)
+                               (-> igroups keys set))]
+      (create-group (get lgroups id) options root))))
+
+
+;### update groups ############################################################
+
+(defn update-group [id params root]
+  (-> root
+      (roa/relation :group)
+      (roa/request {:id id}
+                   :patch
+                   {:headers {"Content-Type" "application/json"}
+                    :body (cheshire/generate-string params)})))
+
+(defn update-groups
+  "Update every group in the intersection of ldap and institutional
+  madek groups where the parameters are not equal."
+  [root options lgroups]
+  (let [igroups (get-institutional-groups root)]
+    (doseq [id (set/intersection (-> igroups keys set)
+                                 (-> lgroups keys set))]
+      (let [lgroup (get lgroups id)
+            igroup (get igroups id)
+            lgroup-params (select-keys lgroup [:name :institutional_group_name])
+             igroup-params (select-keys igroup  [:name :institutional_group_name]) ]
+        (when (not= lgroup-params igroup-params)
+          (logging/info "Updating group " (str id) " " (cheshire/generate-string igroup-params)
+                        " -> "(cheshire/generate-string lgroup-params))
+          (update-group (str id) lgroup-params root))))))
+
+
+;### run ######################################################################
+
 (defn run [ldap-data options]
   (logging/info "Running sync into Madek ....")
   (let [root (api-root options)]
     (check-connection! root)
-    (let [igroups (get-institutional-groups root)
-          lgroups (-> ldap-data :institutional-groups)]
-      (create-missing-igroups root options igroups lgroups)
-      ))
+    (let [ lgroups (-> ldap-data :institutional-groups)]
+      (when-not (:skip-create options)
+        (create-missing-igroups root options lgroups))
+      (update-groups root options lgroups)))
   (logging/info "Running sync into Madek done."))
 
 ;### Debug ####################################################################
