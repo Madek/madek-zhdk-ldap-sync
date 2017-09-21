@@ -34,7 +34,10 @@
         data (assoc data :type "InstitutionalGroup") ]
     (logging/info "Creating group " id " with data " (cheshire/generate-string data))
     (-> root
-        ; TODO
+        (roa/relation :groups)
+        (roa/request {} :post
+                     {:headers {"Content-Type" "application/json"}
+                      :body (cheshire/generate-string data)})
         )))
 
 (defn create-missing-igroups
@@ -80,4 +83,4 @@
 
 ;### Debug ####################################################################
 ;(debug/re-apply-last-argument #'run)
-(debug/debug-ns *ns*)
+;(debug/debug-ns *ns*)

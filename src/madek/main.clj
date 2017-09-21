@@ -51,7 +51,7 @@
 
 
 (defn -main [& args]
-  (logbug.thrown/reset-ns-filter-regex #"^madek\..*")
+  (logbug.thrown/reset-ns-filter-regex #"^(madek\.)|(.*roa.*).*")
   (let [{:keys [options arguments errors summary]}
         (parse-opts args cli-options :in-order true)]
     (cond

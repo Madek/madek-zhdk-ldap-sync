@@ -1,5 +1,7 @@
 ; Copyright (C) 2015 Dr. Thomas Schank  (DrTom@schank.ch, Thomas.Schank@algocon.ch)
 
+;TODO SUBMIT TO UPSTREAM;  this temporarily copied over here to extend it
+
 (ns json-roa.client.core
 
   (:refer-clojure :exclude [get])
@@ -81,11 +83,11 @@
         method (or method :get)
         opts (or opts {})
         mod-opts (or mod-opts identity)]
-    (let [conn-opts (-> relation :roa-conn-opts
+    (let [conn-opts (-> rel :roa-conn-opts
                         (merge opts)
                         mod-opts)
           uri (build-uri (-> conn-opts :url)
-                         (-> relation :href)
+                         (-> rel :href)
                          url-params)
           middleware (-> conn-opts :middleware)]
       (assoc
