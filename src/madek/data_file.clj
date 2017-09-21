@@ -1,5 +1,9 @@
 (ns madek.data-file
+  (:refer-clojure :exclude [str keyword])
+
   (:require
+    [madek.utils :refer [str keyword]]
+
     [cheshire.core :as cheshire]
 
     [clojure.tools.logging :as logging]

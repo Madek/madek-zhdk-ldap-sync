@@ -1,8 +1,12 @@
 (ns madek.main
+  (:refer-clojure :exclude [str keyword])
+
   (:require
-    [madek.ldap-fetch :as ldap-fetch]
     [madek.data-file :as data-file]
+    [madek.ldap-fetch :as ldap-fetch]
     [madek.sync :as sync]
+    [madek.utils :refer [str keyword]]
+
 
     [clojure.pprint :refer [pprint]]
     [clojure.tools.cli :refer [parse-opts]]
