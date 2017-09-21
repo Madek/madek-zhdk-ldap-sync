@@ -96,6 +96,22 @@
                         " -> "(cheshire/generate-string lgroup-params))
           (update-group (str id) lgroup-params root))))))
 
+;### delete groups ############################################################
+
+(defn delete-group [id root]
+  (-> root
+      (roa/relation :group)
+      (roa/request {:id id} :delete)))
+
+(defn delete-groups
+  "Delete every institutional-group found in Madek but not in LDAP"
+  [root options lgroups]
+  (let [igroups (get-institutional-groups root)]
+    (doseq [id (set/difference (-> igroups keys set)
+                               (-> lgroups keys set))]
+      (logging/info "Deleting group " (cheshire/generate-string (get igroups id)))
+      (delete-group (str id) root))))
+
 
 ;### run ######################################################################
 
@@ -106,7 +122,10 @@
     (let [ lgroups (-> ldap-data :institutional-groups)]
       (when-not (:skip-create options)
         (create-missing-igroups root options lgroups))
-      (update-groups root options lgroups)))
+      (when-not (:skip-update options)
+        (update-groups root options lgroups))
+      (when (:delete options)
+        (delete-groups root options lgroups))))
   (logging/info "Running sync into Madek done."))
 
 ;### Debug ####################################################################
