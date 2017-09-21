@@ -1,4 +1,4 @@
-(defproject madek-ldap-sync "0.1.0"
+(defproject madek-zhdk-ldap-sync "0.1.0"
   :description "Sync groups from ZHdK AD/LDAP into Madek"
   :url "https://github.com/Madek/madek-ldap-sync"
   :license {:name "WTFPL"
@@ -16,4 +16,7 @@
                  ]
   :main ^:skip-aot madek.main
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar
+             {:aot :all
+              :uberjar-name "../madek-zhdk-ldap-sync.jar"}
+             })

@@ -32,7 +32,10 @@
 (defn create-group [data options root]
   (let [id (-> data :institutional_group_id str)
         data (assoc data :type "InstitutionalGroup") ]
-    (logging/info "Creating group " id " with data " (cheshire/generate-string data))))
+    (logging/info "Creating group " id " with data " (cheshire/generate-string data))
+    (-> root
+        ; TODO
+        )))
 
 (defn create-missing-igroups
   "Create every group found in lgroups but not in igroups."
@@ -77,4 +80,4 @@
 
 ;### Debug ####################################################################
 ;(debug/re-apply-last-argument #'run)
-;(debug/debug-ns *ns*)
+(debug/debug-ns *ns*)
