@@ -5,7 +5,7 @@
             :url "http://www.wtfpl.net/txt/copying/"}
   :dependencies [
                  [cheshire "5.7.1"]
-                 [json-roa_clj-client "0.2.1"]
+                 [json-roa_clj-client "0.3.0"]
                  [log4j/log4j "1.2.17" :exclusions [javax.mail/mail javax.jms/jms com.sun.jdmk/jmxtools com.sun.jmx/jmxri]]
                  [logbug "4.2.2"]
                  [org.clojars.pntblnk/clj-ldap "0.0.12"]

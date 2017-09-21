@@ -21,7 +21,6 @@ Examples for running the source directly:
 
     $ lein run -- --output-file tmp/test.json
 
-    $ lein run -- --input-file tmp/test.json --madek-base-url http://localhost:3100
-
+    $ lein run -- --delete --input-file tmp/test.json --madek-base-url http://localhost:3100
 
 

@@ -23,7 +23,7 @@
   [root]
   (let [auth-info (-> root
                       (roa/relation :auth-info)
-                      (roa/get {}))]
+                      roa/request)]
     (logging/debug 'auth-info auth-info)))
 
 
@@ -38,9 +38,9 @@
     (->>
       (-> root
           (roa/relation :groups)
-          (roa/get {})
+          roa/request
           roa/coll-seq)
-      (map #(roa/get % {}))
+      (map roa/request)
       (map roa/data)
       (filter #(= "InstitutionalGroup" (:type %)))
       (map (fn [g] [(:institutional_group_id g) g]))
