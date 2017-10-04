@@ -31,7 +31,7 @@
 
 (defn get-institutional-groups
   "Returns a map including all institutional groups. Every key is equal to the
-  institutional_group_id of the group. Pipes the data through cheshire to json
+  institutional_id of the group. Pipes the data through cheshire to json
   and back for consisten keyword encoding."
   [root]
   (->
@@ -43,7 +43,7 @@
       (map roa/request)
       (map roa/data)
       (filter #(= "InstitutionalGroup" (:type %)))
-      (map (fn [g] [(:institutional_group_id g) g]))
+      (map (fn [g] [(:institutional_id g) g]))
       (into {}))
     cheshire/generate-string
     (cheshire/parse-string keyword)))
@@ -52,7 +52,7 @@
 ;### create new groups ########################################################
 
 (defn create-group [data options root]
-  (let [id (-> data :institutional_group_id str)
+  (let [id (-> data :institutional_id str)
         data (assoc data :type "InstitutionalGroup") ]
     (logging/info "Creating group " id " with data " (cheshire/generate-string data))
     (-> root
@@ -89,8 +89,8 @@
                                  (-> lgroups keys set))]
       (let [lgroup (get lgroups id)
             igroup (get igroups id)
-            lgroup-params (select-keys lgroup [:name :institutional_group_name])
-             igroup-params (select-keys igroup  [:name :institutional_group_name]) ]
+            lgroup-params (select-keys lgroup [:name :institutional_name])
+             igroup-params (select-keys igroup  [:name :institutional_name]) ]
         (when (not= lgroup-params igroup-params)
           (logging/info "Updating group " (str id) " " (cheshire/generate-string igroup-params)
                         " -> "(cheshire/generate-string lgroup-params))

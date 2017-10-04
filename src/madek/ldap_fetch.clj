@@ -38,7 +38,7 @@
 
 (defn map-groups
   "Converts a seq of groups each containing ldad attributes into a map from
-  institutional_group_id to row data as used in Madek. Pipes the data through
+  institutional_id to row data as used in Madek. Pipes the data through
   cheshire to json and back for consisten keyword encoding."
   [ldap-groups]
   (->>
@@ -49,19 +49,19 @@
                   (->> row
                        (map (fn [[k v]]
                               (let [new-key (case k
-                                              :name :institutional_group_name
-                                              :extensionAttribute3 :institutional_group_id
+                                              :name :institutional_name
+                                              :extensionAttribute3 :institutional_id
                                               :extensionAttribute1 :name
                                               :displayName :display_name
                                               k)]
                                 [new-key v])))
                        (sort)
                        (into (empty row))
-                       (#(select-keys % [:name :institutional_group_id :institutional_group_name]))
+                       (#(select-keys % [:name :institutional_id :institutional_name]))
                        )))
-           (filter :institutional_group_id)
+           (filter :institutional_id)
            (filter :name)
-           (map (fn [g] [(:institutional_group_id g) g]))
+           (map (fn [g] [(:institutional_id g) g]))
            (into {}))
       cheshire/generate-string
       (cheshire/parse-string keyword))
