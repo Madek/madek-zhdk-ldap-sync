@@ -52,13 +52,13 @@
                                               :name :institutional_name
                                               :extensionAttribute3 :institutional_id
                                               :extensionAttribute1 :name
-                                              :displayName :display_name
                                               k)]
                                 [new-key v])))
                        (sort)
                        (into (empty row))
-                       (#(select-keys % [:name :institutional_id :institutional_name]))
-                       )))
+                       (#(select-keys % [:institutional_id
+                                         :institutional_name
+                                         :name ])))))
            (filter :institutional_id)
            (filter :name)
            (map (fn [g] [(:institutional_id g) g]))

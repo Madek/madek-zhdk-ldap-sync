@@ -1,4 +1,4 @@
-(ns madek.sync
+(ns madek.groups-sync
   (:refer-clojure :exclude [str keyword])
 
   (:require
@@ -120,11 +120,11 @@
   (let [root (api-root options)]
     (check-connection! root)
     (let [ lgroups (-> ldap-data :institutional-groups)]
-      (when-not (:skip-create options)
+      (when-not (:skip-create-groups options)
         (create-missing-igroups root options lgroups))
-      (when-not (:skip-update options)
+      (when-not (:skip-update-groups options)
         (update-groups root options lgroups))
-      (when (:delete options)
+      (when (:delete-groups options)
         (delete-groups root options lgroups))))
   (logging/info "Running sync into Madek done."))
 

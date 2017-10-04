@@ -16,3 +16,35 @@ jobs:
               body: |
                 set -euxo
                 lein uberjar
+
+  draft-release:
+    name: Draft a release on GH
+    run_when:
+      on the release branch:
+        type: branch
+        include_match: ^release$
+    context:
+      tasks:
+        release:
+          include:
+            - cider-ci/build-and-test.yml
+          traits:
+              ci-g2016-08: true
+          scripts:
+            # override the existing test; we don't care about the result
+            test:
+              body: exit 0
+            draft-release:
+              start_when:
+                build-linux has passed:
+                  script_key: build-linux
+                build-windows has passed:
+                  script_key: build-windows
+                build-mac-os has passed:
+                  script_key: build-mac-os
+              body: |
+                set -euxo
+                export PATH=~/.rubies/$RUBY/bin:$PATH
+                bundle exec ./bin/draft-gh-release
+
+

@@ -4,7 +4,7 @@
   (:require
     [madek.data-file :as data-file]
     [madek.ldap-fetch :as ldap-fetch]
-    [madek.sync :as sync]
+    [madek.groups-sync :as groups-sync]
     [madek.utils :refer [str keyword]]
 
 
@@ -26,9 +26,9 @@
   [["-h" "--help"]
    ["-t" "--madek-token MADEK_TOKEN" "Token used to authenticate against the Madek server." :default (System/getenv "MADEK_TOKEN")]
    ["-u" "--madek-base-url BASE_URL" "Base URL of the Madek instance." :default "https://test.madek.zhdk.ch"]
-   [nil "--skip-create" "Skips creating new groups" :default false]
-   [nil "--skip-update" "Skips updating new groups" :default false]
-   [nil "--delete" "Delete institutional-groups found in Madek but not in LDAP" :default false]
+   [nil "--skip-create-groups" "Skips creating new groups" :default false]
+   [nil "--skip-update-groups" "Skips updating new groups" :default false]
+   [nil "--delete-groups" "Delete institutional-groups found in Madek but not in LDAP" :default false]
    [nil "--input-file INOUT_FILE" "The data will be retrieved from this file instead of fetching it from LDAP"]
    [nil "--output-file OUTPUT_FILE" "The data to be synced will be written to this json file instead." :default (System/getenv "OUTPUT_FILE")]
    [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "adc3.ad.zhdk.ch"]
@@ -64,6 +64,7 @@
 
 ;(-main "-h")
 ;(-main)
+;(-main "--input-file tmp/data.json" "--madek-base-url" "http://localhost:3100")
 
 ;;; RUN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -76,5 +77,9 @@
                  (ldap-fetch/run options))]
       (if (:output-file options)
         (data-file/run-write data options)
-        (sync/run data options)))
+        (groups-sync/run data options)))
     (logging/info "Running Madek LDAP Sync done.")))
+
+
+
+
