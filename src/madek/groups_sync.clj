@@ -116,7 +116,7 @@
 ;### run ######################################################################
 
 (defn run [ldap-data options]
-  (logging/info "Running sync into Madek ....")
+  (logging/info ">>>>>>>>>>>>>>>>> Syncing groups ....")
   (let [root (api-root options)]
     (check-connection! root)
     (let [ lgroups (-> ldap-data :institutional-groups)]
@@ -126,7 +126,7 @@
         (update-groups root options lgroups))
       (when (:delete-groups options)
         (delete-groups root options lgroups))))
-  (logging/info "Running sync into Madek done."))
+  (logging/info "sync groups done. <<<<<<<<<<<<<<<<<<<<<"))
 
 ;### Debug ####################################################################
 ;(debug/re-apply-last-argument #'run)

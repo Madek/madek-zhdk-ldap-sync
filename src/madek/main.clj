@@ -3,8 +3,9 @@
 
   (:require
     [madek.data-file :as data-file]
-    [madek.ldap-fetch :as ldap-fetch]
     [madek.groups-sync :as groups-sync]
+    [madek.ldap-fetch :as ldap-fetch]
+    [madek.people-sync :as people-sync]
     [madek.utils :refer [str keyword]]
 
 
@@ -29,6 +30,9 @@
    [nil "--skip-create-groups" "Skips creating new groups" :default false]
    [nil "--skip-update-groups" "Skips updating new groups" :default false]
    [nil "--delete-groups" "Delete institutional-groups found in Madek but not in LDAP" :default false]
+   [nil "--skip-create-people" "Skips creating new people" :default false]
+   [nil "--skip-update-people" "Skips updating new people" :default false]
+   [nil "--delete-people" "Delete institutional-people found in Madek but not in LDAP" :default false]
    [nil "--input-file INOUT_FILE" "The data will be retrieved from this file instead of fetching it from LDAP"]
    [nil "--output-file OUTPUT_FILE" "The data to be synced will be written to this json file instead." :default (System/getenv "OUTPUT_FILE")]
    [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "adc3.ad.zhdk.ch"]
@@ -71,15 +75,14 @@
 (defn run [options]
   (catcher/snatch
     {:return-fn (fn [_] (System/exit 0))}
-    (logging/info "Running Madek LDAP Sync ....")
+    (logging/info "Madek LDAP Sync ....")
     (let [data (if (:input-file options)
                  (data-file/run-read options)
                  (ldap-fetch/run options))]
       (if (:output-file options)
         (data-file/run-write data options)
-        (groups-sync/run data options)))
-    (logging/info "Running Madek LDAP Sync done.")))
-
-
+        (do (groups-sync/run data options)
+            (people-sync/run data options))))
+    (logging/info "Madek LDAP Sync done.")))
 
 

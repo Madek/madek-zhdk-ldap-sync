@@ -73,5 +73,5 @@
 (defn run [options]
   (logging/info "Fetching LDAP data .... ")
   (let [ldap-groups (fetch-groups options)]
-    (logging/info "Fetching LDAP done.")
+    (logging/info "fetch LDAP data done.")
     {:institutional-groups (map-groups ldap-groups)}))
