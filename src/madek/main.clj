@@ -33,8 +33,11 @@
    [nil "--skip-create-people" "Skips creating new people" :default false]
    [nil "--skip-update-people" "Skips updating new people" :default false]
    [nil "--delete-people" "Delete institutional-people found in Madek but not in LDAP" :default false]
-   [nil "--input-file INOUT_FILE" "The data will be retrieved from this file instead of fetching it from LDAP"]
-   [nil "--output-file OUTPUT_FILE" "The data to be synced will be written to this json file instead." :default (System/getenv "OUTPUT_FILE")]
+   [nil "--input-file INPUT_FILE"
+    "The data will be retrieved from this file instead of fetching it from LDAP"]
+   [nil "--output-file OUTPUT_FILE"
+    "The data to be synced will be written to this json file instead."
+    :default (System/getenv "OUTPUT_FILE")]
    [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "adc3.ad.zhdk.ch"]
    [nil "--ldap-bind-dn BIND_DN" :default "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"]
    [nil "--ldap-password LDAP_PASSWORD" "Password used to bind against the LDAP server." :default (System/getenv "LDAP_PASSWORD")]
@@ -68,7 +71,7 @@
 
 ;(-main "-h")
 ;(-main)
-;(-main "--input-file tmp/data.json" "--madek-base-url" "http://localhost:3100")
+;(-main "--input-file" "tmp/data_2017-11.json" "--madek-base-url" "http://localhost:3100")
 
 ;;; RUN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

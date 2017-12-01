@@ -24,3 +24,8 @@ Examples for running the source directly:
     $ lein run -- --delete --input-file tmp/test.json --madek-base-url http://localhost:3100
 
 
+## Limitations, Problems and Bugs
+
+A misleading error message `JsonParseException` will be given when the Madek
+server is configured to accept https only (by providing redirects) if the wrong
+protocol `http` is used.
