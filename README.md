@@ -6,18 +6,46 @@ This serves also as an example how to use the Madek-API to manage institutional-
 
 ## Usage
 
-
-    $ java -jar madek-ldap.jar [args]
-
-    $ java -jar madek-ldap.jar --input-file tmp/test.json --madek-token MADEK_TOKEN --madek-base-url http://localhost:3100
+In general: `java -jar madek-zhdk-ldap-sync.jar [args]`.
 
 The values for `MADEK_TOKEN` and `LDAP_PASSWORD` will also be read from
 environment variables. This is considered to be more secure then giving program
 arguments.
 
+
+### Real Sync Example
+
+    $ java -jar madek-zhdk-ldap-sync.jar --help
+
+    $ java -jar target/madek-zhdk-ldap-sync.jar --output-file tmp/data_2018-01.json  --ldap-password '**********'
+
+    $ java -jar target/madek-zhdk-ldap-sync.jar --input-file tmp/data_2018-01.json  -t ******************************** > tmp/test-change.log
+
+    $ java -jar target/madek-zhdk-ldap-sync.jar --input-file tmp/data_2018-01.json  -t ******************************** -u https://medienarchiv.zhdk.ch > tmp/change.log
+
+
+### ZHdK LDAP System Account
+
+See the (encrypted) file `inventories/zhdk/README_ZHdK_secrets.md` in the deploy project.
+
+
+## Building
+
+    $ lein do clean, uberjar
+
+
 ## Development
 
-Examples for running the source directly:
+### Start a REPL
+
+    $ lein repl
+
+Starting from a clean slate:
+
+    $ lein do clean, repl
+
+
+### Examples for running the source directly:
 
     $ lein run -- --output-file tmp/test.json
 
