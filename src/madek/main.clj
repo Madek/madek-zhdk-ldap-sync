@@ -38,7 +38,7 @@
    [nil "--output-file OUTPUT_FILE"
     "The data to be synced will be written to this json file instead."
     :default (System/getenv "OUTPUT_FILE")]
-   [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "adc3.ad.zhdk.ch"]
+   [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "ldaps.zhdk.ch"]
    [nil "--ldap-bind-dn BIND_DN" :default "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"]
    [nil "--ldap-password LDAP_PASSWORD" "Password used to bind against the LDAP server." :default (System/getenv "LDAP_PASSWORD")]
    ])

@@ -18,6 +18,7 @@
 (defn fetch-groups [options]
   (let [conn-params {:host (:ldap-host options)
                      :bind-dn (:ldap-bind-dn options)
+                     :ssl? true
                      :password (:ldap-password options)}]
     (with-open
       [conn (ldap/connect conn-params)]
