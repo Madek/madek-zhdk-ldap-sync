@@ -18,5 +18,5 @@
   :target-path "target/%s"
   :profiles {:uberjar
              {:aot :all
-              :uberjar-name "../madek-zhdk-ldap-sync.jar"}
+              :uberjar-name "../zhdk-sync.jar"}
              })

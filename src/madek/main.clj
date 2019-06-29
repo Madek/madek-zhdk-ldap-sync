@@ -6,7 +6,7 @@
     [madek.groups-sync :as groups-sync]
     [madek.ldap-fetch :as ldap-fetch]
     [madek.people-sync :as people-sync]
-    [madek.utils :refer [str keyword]]
+    [madek.utils :refer [str keyword presence]]
 
 
     [clojure.pprint :refer [pprint]]
@@ -23,10 +23,25 @@
 
 ;;; CLI ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+(def defaults
+  {:MADEK_BASE_URL "http://localhost"
+   :LDAP_BIND_DN "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"
+   })
+
+(defn env-or-default [kw & {:keys [parse-fn]
+                            :or {parse-fn identity}}]
+  (or (-> (System/getenv) (get (str kw) nil) presence)
+      (get defaults kw nil)))
+
 (def cli-options
   [["-h" "--help"]
-   ["-t" "--madek-token MADEK_TOKEN" "Token used to authenticate against the Madek server." :default (System/getenv "MADEK_TOKEN")]
-   ["-u" "--madek-base-url BASE_URL" "Base URL of the Madek instance." :default "https://test.madek.zhdk.ch"]
+   ["-t" "--madek-token MADEK_TOKEN" 
+    "Token used to authenticate against the Madek server." 
+    :default (env-or-default "MADEK_TOKEN")]
+   ["-u" "--madek-base-url MADEK_BASE_URL" 
+    "Base URL of the Madek instance." 
+    :default (env-or-default :MADEK_BASE_URL)]
    [nil "--skip-create-groups" "Skips creating new groups" :default false]
    [nil "--skip-update-groups" "Skips updating new groups" :default false]
    [nil "--delete-groups" "Delete institutional-groups found in Madek but not in LDAP" :default false]
@@ -34,13 +49,17 @@
    [nil "--skip-update-people" "Skips updating new people" :default false]
    [nil "--delete-people" "Delete institutional-people found in Madek but not in LDAP" :default false]
    [nil "--input-file INPUT_FILE"
-    "The data will be retrieved from this file instead of fetching it from LDAP"]
+    "The data will be retrieved from this file instead of fetching it from LDAP"
+    :default (System/getenv "INPUT_FILE")]
    [nil "--output-file OUTPUT_FILE"
     "The data to be synced will be written to this json file instead."
     :default (System/getenv "OUTPUT_FILE")]
    [nil "--ldap-host" "Hostname/ip of the LDAP server" :default "ldaps.zhdk.ch"]
-   [nil "--ldap-bind-dn BIND_DN" :default "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"]
-   [nil "--ldap-password LDAP_PASSWORD" "Password used to bind against the LDAP server." :default (System/getenv "LDAP_PASSWORD")]
+   [nil "--ldap-bind-dn LDAP_BIND_DN" 
+    :default (env-or-default :LDAP_BIND_DN)]
+   [nil "--ldap-password LDAP_PASSWORD" 
+    "Password used to bind against the LDAP server." 
+    :default (System/getenv "LDAP_PASSWORD")]
    ])
 
 (defn usage [options-summary & more]
@@ -77,7 +96,7 @@
 
 (defn run [options]
   (catcher/snatch
-    {:return-fn (fn [_] (System/exit 0))}
+    {:return-fn (fn [_] (System/exit -1))}
     (logging/info "Madek LDAP Sync ....")
     (let [data (if (:input-file options)
                  (data-file/run-read options)
@@ -86,6 +105,7 @@
         (data-file/run-write data options)
         (do (groups-sync/run data options)
             (people-sync/run data options))))
-    (logging/info "Madek LDAP Sync done.")))
+    (logging/info "Madek LDAP Sync done."))
+  (System/exit 0))
 
 

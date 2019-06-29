@@ -1,0 +1,14 @@
+name: MADEK/zhdk-sync
+windows:
+  2:
+    name: app
+    command: |
+      lein do clean, repl
+  3: 
+    name: deploy
+    command: | 
+      # ansible-playbook -v deploy/deploy_play.yml -i ../madek/deploy/inventories/zhdk/hosts_test-blank --ssh-common-args '-o ProxyCommand="ssh -W %h:%p -q root@ci.zhdk.ch"'
+  8:
+    name: log
+    command: |
+      mkdir -p log && echo " " > log/debug.log && tail -f log/debug.log
