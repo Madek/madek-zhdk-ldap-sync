@@ -3,11 +3,13 @@ windows:
   2:
     name: app
     command: |
+      jenv shell 1.8
       lein do clean, repl
-  3: 
+  3:
     name: deploy
-    command: | 
-      # ansible-playbook -v deploy/deploy_play.yml -i ../madek/deploy/inventories/zhdk/hosts_test-blank --ssh-common-args '-o ProxyCommand="ssh -W %h:%p -q root@ci.zhdk.ch"'
+    command: |
+      jenv shell 1.8
+      # ansible-playbook -v deploy/deploy_play.yml -i ../madek/deploy/inventories/zhdk/hosts_medienarchiv --ssh-common-args '-o ProxyCommand="ssh -W %h:%p -q root@ci.zhdk.ch"'
   8:
     name: log
     command: |

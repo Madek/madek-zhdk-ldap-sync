@@ -1,4 +1,4 @@
-madek_zhdk_sync_root_dir: /madek/zhdk-sync
+madek_zhdk_sync_root_dir: /madek-zhdk-sync
 madek_zhdk_sync_user: madek-zhdk-sync
 madek_zhdk_sync_group: madek-zhdk-sync
 uberjar_name: 'zhdk-sync.jar'
