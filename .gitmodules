@@ -1,0 +1,3 @@
+[submodule "json-roa_clj-client"]
+	path = json-roa_clj-client
+	url = https://github.com/json-roa/json-roa_clj-client.git

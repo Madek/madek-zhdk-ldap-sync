@@ -1,0 +1,8 @@
+- name: build uberjar
+  delegate_to: localhost
+  shell: |
+    #!/bin/bash
+    set -euxo
+    export PROJECT_DIR='{{playbook_dir}}/..'
+    cd $PROJECT_DIR
+    ./bin/clj-uberjar

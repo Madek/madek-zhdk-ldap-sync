@@ -9,10 +9,10 @@ jobs:
       tasks:
         build:
           traits:
-            'JDK 8': true
-            'Leiningen': true
+            'OpenJDK': true
           scripts:
             uberjar:
               body: |
-                set -euxo
-                lein uberjar
+                set -eux
+                git submodule update --init --recursive --force
+                ./bin/clj-uberjar

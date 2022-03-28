@@ -1,6 +1,7 @@
 *.class
-*.jar
 *.log
+.DS_Store
+.cpcache/
 .hg/
 .hgignore
 /.lein-*
@@ -11,3 +12,4 @@
 /tmp
 pom.xml
 pom.xml.asc
+zhdk-sync.jar

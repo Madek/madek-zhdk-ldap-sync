@@ -1,0 +1,43 @@
+- name: setup service file
+  template:
+    src: zhdk-sync.service
+    dest: /etc/systemd/system/zhdk-sync.service
+    mode: 0640
+
+- command: systemctl daemon-reload
+  changed_when: false
+  name: reload systemctl
+
+- name: enable the service
+  service:
+    name: zhdk-sync.service
+    enabled: yes
+
+
+# timer
+
+- name: install the sync timer
+  template:
+    src: zhdk-sync.timer
+    dest: /etc/systemd/system/zhdk-sync.timer
+    mode: 0644
+
+- name: reload systemctl
+  command: systemctl daemon-reload
+  changed_when: false
+
+- name: enable the sync timer
+  service:
+    name: zhdk-sync.timer
+    enabled: yes
+    state: started
+
+# start service optinally
+
+- name: start zhdk-sync.service
+  service:
+    name: zhdk-sync.service
+    state: started
+    enabled: yes
+  when: run_service_on_deploy
+

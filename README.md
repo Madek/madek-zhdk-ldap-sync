@@ -31,25 +31,28 @@ See the (encrypted) file `inventories/zhdk/README_ZHdK_secrets.md` in the deploy
 
 ## Building
 
-    $ lein do clean, uberjar
+    $ ./bin/clj-uberjar
 
 
 ## Development
 
+see
+
+    ./bin/deploy-to-test
+    ./bin/deploy-to-prod
+
+
+
 ### Start a REPL
 
-    $ lein repl
-
-Starting from a clean slate:
-
-    $ lein do clean, repl
+    $ ./bin/clj-run
 
 
 ### Examples for running the source directly:
 
-    $ lein run -- --output-file tmp/test.json
+    $ ./bin/clj-run --output-file tmp/test.json
 
-    $ lein run -- --delete --input-file tmp/test.json --madek-base-url http://localhost:3100
+    $ ./bin/clj-run --delete --input-file tmp/test.json --madek-base-url http://localhost:3100
 
 
 ## Limitations, Problems and Bugs
