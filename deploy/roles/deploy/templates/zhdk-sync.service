@@ -3,7 +3,7 @@ Description=Madek ZHdK Sync Service
 After=syslog.target
 After=network.target
 
-BindsTo=madek_api.service
+BindsTo=madek-api.service
 
 [Service]
 Type=oneshot
