@@ -9,10 +9,11 @@ jobs:
       tasks:
         build:
           traits:
-            'OpenJDK': true
+            asdf: true
           scripts:
             uberjar:
               body: |
-                set -eux
+                #!/usr/bin/env bash
+                set -euo pipefail
                 git submodule update --init --recursive --force
                 ./bin/clj-uberjar
