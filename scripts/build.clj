@@ -3,7 +3,7 @@
 
 (def class-dir "target/classes")
 (def basis (b/create-basis {:project "deps.edn"}))
-(def uber-file (format "zhdk-sync.jar"))
+(def uber-file (format "madek-zhdk-ldap-sync.jar"))
 
 (defn clean [_]
   (b/delete {:path "target"}))

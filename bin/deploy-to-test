@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 PROJECT_DIR="$(cd -- "$(dirname "${BASH_SOURCE}")" ; cd .. > /dev/null 2>&1 && pwd -P)"
-source ${PROJECT_DIR}/bin/virtualenv-activate || exit 1
 
 ./bin/ansible-playbook \
-  -i ../madek/deploy/inventories/zhdk/hosts_test \
+  -i ../madek/deploy/inventories/zhdk/hosts.yml \
+  -l test \
   deploy/deploy_play.yml \
   -e 'run_service_on_deploy=true' \
   "$@"

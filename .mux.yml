@@ -1,4 +1,4 @@
-name: MADEK/zhdk-sync
+name: MADEK/zhdk-ldap-sync
 windows:
   2:
     name: app

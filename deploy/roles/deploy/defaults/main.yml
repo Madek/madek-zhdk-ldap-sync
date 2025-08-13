@@ -1,1 +1,8 @@
+uninstall: false
 run_service_on_deploy: false
+madek_zhdk_ldap_sync_name: madek-zhdk-ldap-sync
+madek_zhdk_sync_root_dir: /{{madek_zhdk_ldap_sync_name}}
+madek_zhdk_sync_user: '{{madek_zhdk_ldap_sync_name}}'
+madek_zhdk_sync_group: '{{madek_zhdk_ldap_sync_name}}'
+uberjar_name: 'madek-zhdk-ldap-sync.jar'
+uberjar_path: '{{madek_zhdk_sync_root_dir}}/{{uberjar_name}}'

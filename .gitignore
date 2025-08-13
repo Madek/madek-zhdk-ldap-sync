@@ -12,4 +12,6 @@
 /tmp
 pom.xml
 pom.xml.asc
-zhdk-sync.jar
+madek-zhdk-ldap-sync.jar
+/.venv
+/.venv-*

@@ -1,0 +1,19 @@
+[Unit]
+Description=Madek ZHdK Sync Service
+After=syslog.target
+After=network.target
+
+BindsTo=madek-api.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=false
+WorkingDirectory={{madek_zhdk_sync_root_dir}}
+User={{madek_zhdk_sync_user}}
+Environment=MADEK_BASE_URL=https://{{madek_external_hostname}}
+Environment=MADEK_TOKEN={{zhdk_sync_api_token}}
+Environment=LDAP_PASSWORD={{zhdk_sync_ldap_password}}
+ExecStart=/usr/bin/java "-Xmx1014m" "-jar" "{{uberjar_path}}" "run"
+
+[Install]
+WantedBy=multi-user.target

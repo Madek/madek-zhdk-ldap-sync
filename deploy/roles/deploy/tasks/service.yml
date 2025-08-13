@@ -1,7 +1,7 @@
 - name: setup service file
   template:
-    src: zhdk-sync.service
-    dest: /etc/systemd/system/zhdk-sync.service
+    src: madek-zhdk-ldap-sync.service
+    dest: /etc/systemd/system/{{madek_zhdk_ldap_sync_name}}.service
     mode: 0640
 
 - command: systemctl daemon-reload
@@ -10,7 +10,7 @@
 
 - name: enable the service
   service:
-    name: zhdk-sync.service
+    name: '{{madek_zhdk_ldap_sync_name}}.service'
     enabled: yes
 
 
@@ -18,8 +18,8 @@
 
 - name: install the sync timer
   template:
-    src: zhdk-sync.timer
-    dest: /etc/systemd/system/zhdk-sync.timer
+    src: madek-zhdk-ldap-sync.timer
+    dest: /etc/systemd/system/{{madek_zhdk_ldap_sync_name}}.timer
     mode: 0644
 
 - name: reload systemctl
@@ -28,15 +28,16 @@
 
 - name: enable the sync timer
   service:
-    name: zhdk-sync.timer
+    name: '{{madek_zhdk_ldap_sync_name}}.timer'
     enabled: yes
     state: started
 
 # start service optinally
 
-- name: start zhdk-sync.service
+- name: start madek-zhdk-ldap-sync service
+  when: run_service_on_deploy
   service:
-    name: zhdk-sync.service
+    name: '{{madek_zhdk_ldap_sync_name}}.service'
     state: started
     enabled: yes
   when: run_service_on_deploy

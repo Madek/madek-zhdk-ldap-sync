@@ -4,6 +4,17 @@ An application to sync groups from ZHdK LDAP to a Madek instance, i.e. https://m
 
 This serves also as an example how to use the Madek-API to manage institutional-groups.
 
+## Deployment 
+
+### Simple Script Deployment Example
+
+    ./bin/deploy-to-test
+
+
+### Remove/Uninstall Example
+
+    ./bin/ansible-playbook -i ../madek/deploy/inventories/zhdk/hosts.yml -l test deploy/deploy_play.yml -e uninstall=true 
+
 ## Usage
 
 In general: `java -jar madek-zhdk-ldap-sync.jar [args]`.

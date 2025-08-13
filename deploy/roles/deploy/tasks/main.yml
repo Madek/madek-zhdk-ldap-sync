@@ -1,11 +1,7 @@
-- include: user.yml
-  tags: user
+- include_tasks: deploy.yml
+  when: not uninstall | bool
+  tags: deploy
 
-- include: build.yml
-  tags: build
-
-- include: transfer-jar.yml
-  tags: transfer-jar
-
-- include: service.yml
-  tags: service
+- include_tasks: uninstall.yml
+  when: uninstall | bool
+  tags: uninstall
