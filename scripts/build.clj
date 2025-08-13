@@ -2,8 +2,10 @@
   (:require [clojure.tools.build.api :as b]))
 
 (def class-dir "target/classes")
-(def basis (b/create-basis {:project "deps.edn"}))
+
 (def uber-file (format "madek-zhdk-ldap-sync.jar"))
+
+(def basis (delay (b/create-basis {:project "deps.edn"})))
 
 (defn clean [_]
   (b/delete {:path "target"}))
@@ -12,10 +14,11 @@
   (clean nil)
   (b/copy-dir {:src-dirs ["src" "resources"]
                :target-dir class-dir})
-  (b/compile-clj {:basis basis
+  (b/compile-clj {:basis @basis
+                  :ns-compile '[madek.sync.main]
                   :src-dirs ["src"]
                   :class-dir class-dir})
   (b/uber {:class-dir class-dir
            :uber-file uber-file
-           :basis basis
+           :basis @basis
            :main 'madek.sync.main}))
