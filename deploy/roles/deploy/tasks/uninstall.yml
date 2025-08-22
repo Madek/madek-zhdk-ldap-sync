@@ -1,5 +1,10 @@
 # remove also old files 
 
+- name: remove config file
+  file:
+    path: /etc/madek/zhdk-ldap-sync.config
+    state: absent 
+
 - name: remove timer
   file:
     path: '{{item}}' 
@@ -26,7 +31,7 @@
     state: absent
   with_items:
     - /madek-zhdk-sync
-    - '{{madek_zhdk_sync_root_dir}}'
+    - '{{madek_zhdk_ldap_sync_root_dir}}'
 
 - name: remove madek-sync user
   user:
@@ -35,7 +40,7 @@
     force: yes
   with_items:
     - madek-zhdk-sync
-    - '{{madek_zhdk_sync_user}}'
+    - '{{madek_zhdk_ldap_sync_user}}'
 
 
 - name: remove madek-sync group
@@ -44,5 +49,5 @@
     state: absent
   with_items:
     - madek-zhdk-sync
-    - '{{madek_zhdk_sync_group}}'
+    - '{{madek_zhdk_ldap_sync_group}}'
 

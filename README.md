@@ -63,7 +63,7 @@ see
 
     $ ./bin/clj-run --output-file tmp/test.json
 
-    $ ./bin/clj-run --delete --input-file tmp/test.json --madek-base-url http://localhost:3100
+    $ ./bin/clj-run --delete --input-file tmp/test.json --madek-api-url http://localhost:3100
 
 
 ## Limitations, Problems and Bugs

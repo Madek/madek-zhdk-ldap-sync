@@ -1,3 +1,21 @@
+# config file 
+
+- name: create madek config directory
+  file:
+    path: /etc/madek
+    state: directory
+    mode: 0755
+
+- name: template sync config file
+  template:
+    src: zhdk-ldap-sync.config
+    dest: /etc/madek/zhdk-ldap-sync.config
+    mode: 0640
+    group: '{{madek_zhdk_ldap_sync_group}}'
+
+
+# service
+
 - name: setup service file
   template:
     src: madek-zhdk-ldap-sync.service
