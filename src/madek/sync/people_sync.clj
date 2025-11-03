@@ -1,91 +1,100 @@
 (ns madek.sync.people-sync
   (:refer-clojure :exclude [str keyword])
   (:require
-    [cheshire.core :as cheshire]
-    [clojure.pprint :refer [pprint]]
-    [clojure.set :as set]
-    [json-roa.client.core :as roa]
-    [logbug.debug :as debug]
-    [madek.sync.utils :refer [str keyword]]
-    [taoensso.timbre :refer [debug info warn error spy]]))
+   [cheshire.core :as cheshire]
+   [clj-http.client :as http-client]
+   [clojure.set :as set]
+   [json-roa.client.core :as roa]
+   [madek.sync.utils :refer [str keyword presence]]
+   [taoensso.timbre :refer [debug info warn error spy]]))
 
 (def key-property-mapping
   {:name :last_name
    :institutional_name :pseudonym
    :institutional_id :institutional_id})
 
-(defn api-root [{base-url :madek-base-url token :madek-token}]
-  (roa/get-root (str base-url "/api")
-                :default-conn-opts {:basic-auth token}))
+(defn get-madek-api-config [{base-url :madek-base-url token :madek-token}]
+  {:base-url (str base-url "/api-v2/")
+   :auth-header (str "token " token)})
 
 (defn check-connection!
   "Retrieves the auth-info relation and causes an error to be thrown
    if there is an authentication problem."
-  [root]
-  (let [auth-info (-> root
-                      (roa/relation :auth-info)
-                      roa/request)]
-    (debug 'auth-info auth-info)))
+  [{:keys [base-url auth-header]}]
+  (let [url (str base-url "auth-info/")]
+    (debug "check connection by fetching" url)
+    (let [auth-info (http-client/get url {:as :json
+                                          :headers {"Authorization" auth-header}})]
+      (debug "connection ok")
+      (debug 'auth-info auth-info))))
 
 
 ;### іpeople ##################################################################
 
 (defn get-institutional-people
   "Returns a map including all institutional people. Every key is equal to the
-  institutional_id of the person. Pipes the data through cheshire to json
-  and back for consisten keyword encoding."
-  [root]
-  (->
-    (->>
-      (-> root
-          (roa/relation :people)
-          roa/request
-          roa/coll-seq)
-      (map roa/request)
-      (map roa/data)
-      (filter #(= "PeopleInstitutionalGroup" (:subtype %)))
+    institutional_id of the person. Pipes the data through cheshire to json
+    and back for consisten keyword encoding."
+  [{:keys [base-url auth-header]}]
+  (let [url (str base-url
+                 "admin/people/?"
+                 (http-client/generate-query-string {:subtype "PeopleInstitutionalGroup"}))]
+    (debug "fetching" url)
+    (->
+     (->>
+      (http-client/get url {:as :json
+                            :headers {"Authorization" auth-header}})
+      :body :people
       (map (fn [g] [(:institutional_id g) g]))
       (into {}))
-    cheshire/generate-string
-    (cheshire/parse-string keyword)))
-
+     cheshire/generate-string
+     (cheshire/parse-string keyword))))
 
 ;### create new people ########################################################
 
-(defn create-person [data options root]
-  (let [id (-> data :institutional_id str)
-        data (assoc data :subtype "PeopleInstitutionalGroup") ]
+(defn post
+  [{:keys [base-url auth-header]} data]
+  (let [url (str base-url "admin/people/")]
+    (info "posting" url data)
+    (-> (http-client/post url {:as :json
+                               :content-type :json
+                               :form-params data
+                               :headers {"Authorization" auth-header}}))))
+
+(defn create-person [request-config ldata]
+  (let [id (-> ldata :institutional_id str)
+        data (assoc ldata :subtype "PeopleInstitutionalGroup")]
     (info "Creating person " id " with data " (cheshire/generate-string data))
-    (-> root
-        (roa/relation :people)
-        (roa/request {} :post
-                     {:headers {"Content-Type" "application/json"}
-                      :body (cheshire/generate-string data)}))))
+    (post request-config data)))
 
 (defn create-missing-ipeople
   "Create every person found in lpeople but not in ipeople."
-  [root options lpeople]
-  (let [ipeople (get-institutional-people root)]
+  [request-config lpeople]
+  (let [ipeople (get-institutional-people request-config)]
     (doseq [id (set/difference (-> lpeople keys set)
                                (-> ipeople keys set))]
-      (create-person (get lpeople id) options root))))
+      (create-person request-config (get lpeople id)))))
 
 
 ;### update people ############################################################
 
-(defn update-person [id params root]
-  (-> root
-      (roa/relation :person)
-      (roa/request {:id id}
-                   :patch
-                   {:headers {"Content-Type" "application/json"}
-                    :body (cheshire/generate-string params)})))
+(defn patch
+  [{:keys [base-url auth-header]} madek-id data]
+  (assert (presence madek-id))
+  (let [url (str base-url "admin/people/" madek-id)]
+    (info "patching" url data)
+    (-> (http-client/patch url {:as :json
+                                :content-type :json
+                                :form-params data
+                                :headers {"Authorization" auth-header}})
+        :body)))
 
 (defn update-people
   "Update every person in the intersection of ldap and institutional
   madek people where the parameters are not equal."
-  [root options lpeople]
-  (let [ipeople (get-institutional-people root)]
+  [request-config lpeople]
+  (let [ipeople (get-institutional-people request-config)]
+    (info "Found" (count ipeople) " institutional people")
     (doseq [id (set/intersection (-> ipeople keys set)
                                  (-> lpeople keys set))]
       (let [lperson (get lpeople id)
@@ -93,28 +102,33 @@
             lperson-params (select-keys lperson [:last_name :pseudonym])
             iperson-params (select-keys iperson  [:last_name :pseudonym])]
         (when (not= lperson-params iperson-params)
-          (info "Updating person " (str id) " " (cheshire/generate-string iperson-params)
-                        " -> "(cheshire/generate-string lperson-params))
-          (update-person (str id) lperson-params root))))))
+          (info "Updating person" (:id iperson) (cheshire/generate-string iperson-params)
+                "->" (cheshire/generate-string lperson-params))
+          (patch request-config (:id iperson) lperson-params))))))
 
 ;### delete people ############################################################
 
-(defn delete-person [id root]
-  (-> root
-      (roa/relation :person)
-      (roa/request {:id id} :delete)))
+(defn delete
+  [{:keys [base-url auth-header]} madek-id]
+  (assert (presence madek-id))
+  (let [url (str base-url "admin/people/" madek-id)]
+    (info "deleting" url)
+    (-> (http-client/delete url {:as :json
+                                 :headers {"Authorization" auth-header}})
+        :body)))
 
 (defn delete-people
   "Delete every institutional-person found in Madek but not in LDAP"
-  [root options lpeople]
-  (let [ipeople (get-institutional-people root)]
+  [request-config lpeople]
+  (let [ipeople (get-institutional-people request-config)]
     (doseq [id (set/difference (-> ipeople keys set)
                                (-> lpeople keys set))]
-      (info "Deleting person " (cheshire/generate-string (get ipeople id)))
-      (delete-person (str id) root))))
+      (let [iperson (get ipeople id)]
+        (info "Deleting person " (cheshire/generate-string iperson))
+        (delete request-config (:id iperson))))))
 
 
-;### prepare dap-data #########################################################
+;### prepare ldap-data #########################################################
 
 (defn map-group [grp]
   (->> grp
@@ -139,15 +153,16 @@
 
 (defn run [ldap-data options]
   (info ">>>>>>>>>>>>>>>>>>>>> Syncing people ....")
-  (let [root (api-root options)]
-    (check-connection! root)
+  (let [madek-api-config (get-madek-api-config options)]
+    (check-connection! madek-api-config)
     (let [lpeople (-> ldap-data prepare-ldap-data)]
+      (info "LDAP has" (count lpeople) "people")
       (when-not (:skip-create-people options)
-        (create-missing-ipeople root options lpeople))
+        (create-missing-ipeople madek-api-config lpeople))
       (when-not (:skip-update-people options)
-        (update-people root options lpeople))
+        (update-people madek-api-config lpeople))
       (when (:delete-people options)
-        (delete-people root options lpeople))))
+        (delete-people madek-api-config lpeople))))
   (info "sync people done. <<<<<<<<<<<<<<<<<<<<<<<<<"))
 
 ;### Debug ####################################################################
