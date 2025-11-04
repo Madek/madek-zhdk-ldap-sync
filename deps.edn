@@ -1,33 +1,26 @@
 {:paths [:cljc-paths :resource-paths]
  :deps
- {
-  cheshire/cheshire {:mvn/version "5.10.2"}
+ {cheshire/cheshire {:mvn/version "5.10.2"}
   clj-commons/clj-yaml {:mvn/version "0.7.108"}
+  clj-http/clj-http {:mvn/version "3.13.0"}
   com.taoensso/timbre {:mvn/version "5.2.1"}
   environ/environ {:mvn/version "1.2.0"}
   funcool/cuerdas {:mvn/version "2022.01.14-391"}
-  json-roa_clj-client/json-roa_clj-client {:local/root  "./json-roa_clj-client"}
   logbug/logbug {:mvn/version "5.0.0"}
   nrepl/nrepl {:mvn/version "0.9.0"}
-;  org.clojars.pntblnk/clj-ldap {:mvn/version "0.0.12"}
   org.clojars.pntblnk/clj-ldap {:mvn/version "0.0.17"}
 
   org.clojure/data.json {:mvn/version "2.4.0"}
   org.clojure/tools.cli {:mvn/version "1.0.206"}
   ring-middleware-accept/ring-middleware-accept {:mvn/version "2.0.3"}
 
-  org.clojure/clojure {:mvn/version "1.10.3"}
-  }
+  org.clojure/clojure {:mvn/version "1.10.3"}}
  :aliases
- {
-
-  :build {:deps
+ {:build {:deps
           {io.github.clojure/tools.build {:git/tag "v0.8.1" :git/sha "7d40500"}}
           :ns-default scripts.build}
 
   :cljc-paths ["src"]
 
   :outdated {:extra-deps {com.github.liquidz/antq {:mvn/version "1.6.0"}}
-             :main-opts ["-m" "antq.core"]}
-
-  }}
+             :main-opts ["-m" "antq.core"]}}}

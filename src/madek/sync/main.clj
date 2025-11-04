@@ -2,15 +2,15 @@
   (:refer-clojure :exclude [str keyword])
   (:require
    [clojure.pprint :refer [pprint]]
-   [clojure.tools.cli :refer [parse-opts]]
    [clojure.string]
+   [clojure.tools.cli :refer [parse-opts]]
    [logbug.catcher :as catcher]
    [logbug.thrown]
    [madek.sync.data-file :as data-file]
    [madek.sync.ldap-fetch :as ldap-fetch]
    [madek.sync.people-sync :as people-sync]
-   [madek.sync.utils :refer [presence str]]
-   [taoensso.timbre :refer [info]])
+   [madek.sync.utils :refer [str keyword presence]]
+   [taoensso.timbre :refer [debug info warn error spy]])
   (:gen-class))
 
 

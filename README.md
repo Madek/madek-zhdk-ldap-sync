@@ -1,8 +1,8 @@
 # Madek ZHdK LDAP Sync
 
-An application to sync groups from ZHdK LDAP to a Madek instance, i.e. https://medienarchiv.zhdk.ch/.
+An application to sync groups from ZHdK LDAP as "PeopleInstitutionalGroups" in https://medienarchiv.zhdk.ch/.
 
-This serves also as an example how to use the Madek-API to manage institutional-groups.
+"PeopleInstitutionalGroup" are people of subtype `PeopleInstitutionalGroup`, assignable to media resources as metadata ("ZHdK Bereich"). 
 
 ## Deployment 
 
