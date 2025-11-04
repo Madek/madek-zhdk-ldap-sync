@@ -1,11 +1,9 @@
 (ns madek.sync.data-file
   (:refer-clojure :exclude [str keyword])
-
   (:require
-    [madek.sync.utils :refer [str keyword]]
-    [cheshire.core :as cheshire]
-    [clojure.tools.logging :as logging]
-    ))
+   [cheshire.core :as cheshire]
+   [clojure.tools.logging :as logging]
+   [madek.sync.utils :refer [str]]))
 
 (defn run-write [data options]
   (let [filename (:output-file options)]

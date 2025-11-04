@@ -1,11 +1,10 @@
 (ns madek.sync.ldap-fetch
   (:refer-clojure :exclude [str keyword])
   (:require
-    [madek.sync.utils :refer [str keyword]]
-    [clj-ldap.client :as ldap]
-    [cheshire.core :as cheshire]
-    [clojure.tools.logging :as logging]
-    ))
+   [cheshire.core :as cheshire]
+   [clj-ldap.client :as ldap]
+   [clojure.tools.logging :as logging]
+   [madek.sync.utils :refer [keyword]]))
 
 
 ;;; fetch-groups ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -19,13 +18,13 @@
                      :password (:ldap-password options)}]
     (let [conn (ldap/connect conn-params)]
       (->> (ldap/search-all
-             conn
-             "OU=_Distributionlists,OU=_ZHdK,DC=ad,DC=zhdk,DC=ch"
-             { :attributes [:cn
-                            :name
-                            :extensionAttribute1
-                            :extensionAttribute3
-                            :displayName]})
+            conn
+            "OU=_Distributionlists,OU=_ZHdK,DC=ad,DC=zhdk,DC=ch"
+            {:attributes [:cn
+                          :name
+                          :extensionAttribute1
+                          :extensionAttribute3
+                          :displayName]})
            (reset! last-fetch-result*)))))
 
 
@@ -39,30 +38,30 @@
   cheshire to json and back for consisten keyword encoding."
   [ldap-groups]
   (->>
-    (->
-      (->> ldap-groups
-           (map (fn [row]
-                  (logging/debug {:row row})
-                  (->> row
-                       (map (fn [[k v]]
-                              (let [new-key (case k
-                                              :name :institutional_name
-                                              :extensionAttribute3 :institutional_id
-                                              :extensionAttribute1 :name
-                                              k)]
-                                [new-key v])))
-                       (sort)
-                       (into (empty row))
-                       (#(select-keys % [:institutional_id
-                                         :institutional_name
-                                         :name ])))))
-           (filter :institutional_id)
-           (filter :name)
-           (map (fn [g] [(:institutional_id g) g]))
-           (into {}))
-      cheshire/generate-string
-      (cheshire/parse-string keyword))
-    (reset! last-mapped-data*)))
+   (->
+    (->> ldap-groups
+         (map (fn [row]
+                (logging/debug {:row row})
+                (->> row
+                     (map (fn [[k v]]
+                            (let [new-key (case k
+                                            :name :institutional_name
+                                            :extensionAttribute3 :institutional_id
+                                            :extensionAttribute1 :name
+                                            k)]
+                              [new-key v])))
+                     (sort)
+                     (into (empty row))
+                     (#(select-keys % [:institutional_id
+                                       :institutional_name
+                                       :name])))))
+         (filter :institutional_id)
+         (filter :name)
+         (map (fn [g] [(:institutional_id g) g]))
+         (into {}))
+    cheshire/generate-string
+    (cheshire/parse-string keyword))
+   (reset! last-mapped-data*)))
 
 
 ;;; run ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

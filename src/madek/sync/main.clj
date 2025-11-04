@@ -1,16 +1,17 @@
 (ns madek.sync.main
   (:refer-clojure :exclude [str keyword])
   (:require
-    [clojure.pprint :refer [pprint]]
-    [clojure.tools.cli :refer [parse-opts]]
-    [logbug.catcher :as catcher]
-    [logbug.thrown]
-    [madek.sync.data-file :as data-file]
-    [madek.sync.groups-sync :as groups-sync]
-    [madek.sync.ldap-fetch :as ldap-fetch]
-    [madek.sync.people-sync :as people-sync]
-    [madek.sync.utils :refer [str keyword presence]]
-    [taoensso.timbre :refer [debug info warn error spy]])
+   [clojure.pprint :refer [pprint]]
+   [clojure.tools.cli :refer [parse-opts]]
+   [clojure.string]
+   [logbug.catcher :as catcher]
+   [logbug.thrown]
+   [madek.sync.data-file :as data-file]
+   [madek.sync.groups-sync :as groups-sync]
+   [madek.sync.ldap-fetch :as ldap-fetch]
+   [madek.sync.people-sync :as people-sync]
+   [madek.sync.utils :refer [presence str]]
+   [taoensso.timbre :refer [info]])
   (:gen-class))
 
 
@@ -21,8 +22,7 @@
 
 (def defaults
   {:MADEK_BASE_URL "http://localhost"
-   :LDAP_BIND_DN "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"
-   })
+   :LDAP_BIND_DN "CN=madeksvc,OU=Service Accounts,OU=Accounts,OU=_ZHdK manuell,DC=ad,DC=zhdk,DC=ch"})
 
 (defn env-or-default [kw & {:keys [parse-fn]
                             :or {parse-fn identity}}]
@@ -54,8 +54,7 @@
     :default (env-or-default :LDAP_BIND_DN)]
    [nil "--ldap-password LDAP_PASSWORD"
     "Password used to bind against the LDAP server."
-    :default (System/getenv "LDAP_PASSWORD")]
-   ])
+    :default (System/getenv "LDAP_PASSWORD")]])
 
 (defn usage [options-summary & more]
   (->> ["Madek ZHdK LDAP Sync"
@@ -80,8 +79,7 @@
         (parse-opts args cli-options :in-order true)]
     (cond
       (:help options) (println (usage summary {:options options}))
-      :else (run options)
-      )))
+      :else (run options))))
 
 ;(-main "-h")
 ;(-main)
@@ -91,16 +89,16 @@
 
 (defn run [options]
   (catcher/snatch
-    {:return-fn (fn [_] (System/exit -1))}
-    (info "Madek LDAP Sync ....")
-    (let [data (if (:input-file options)
-                 (data-file/run-read options)
-                 (ldap-fetch/run options))]
-      (if (:output-file options)
-        (data-file/run-write data options)
-        (do (groups-sync/run data options)
-            (people-sync/run data options))))
-    (info "Madek LDAP Sync done."))
+   {:return-fn (fn [_] (System/exit -1))}
+   (info "Madek LDAP Sync ....")
+   (let [data (if (:input-file options)
+                (data-file/run-read options)
+                (ldap-fetch/run options))]
+     (if (:output-file options)
+       (data-file/run-write data options)
+       (do (groups-sync/run data options)
+           (people-sync/run data options))))
+   (info "Madek LDAP Sync done."))
   (System/exit 0))
 
 

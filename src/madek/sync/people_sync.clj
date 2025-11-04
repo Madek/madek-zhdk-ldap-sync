@@ -1,13 +1,11 @@
 (ns madek.sync.people-sync
   (:refer-clojure :exclude [str keyword])
   (:require
-    [cheshire.core :as cheshire]
-    [clojure.pprint :refer [pprint]]
-    [clojure.set :as set]
-    [json-roa.client.core :as roa]
-    [logbug.debug :as debug]
-    [madek.sync.utils :refer [str keyword]]
-    [taoensso.timbre :refer [debug info warn error spy]]))
+   [cheshire.core :as cheshire]
+   [clojure.set :as set]
+   [json-roa.client.core :as roa]
+   [madek.sync.utils :refer [keyword str]]
+   [taoensso.timbre :refer [debug info]]))
 
 (def key-property-mapping
   {:name :last_name
@@ -36,25 +34,25 @@
   and back for consisten keyword encoding."
   [root]
   (->
-    (->>
-      (-> root
-          (roa/relation :people)
-          roa/request
-          roa/coll-seq)
-      (map roa/request)
-      (map roa/data)
-      (filter #(= "PeopleInstitutionalGroup" (:subtype %)))
-      (map (fn [g] [(:institutional_id g) g]))
-      (into {}))
-    cheshire/generate-string
-    (cheshire/parse-string keyword)))
+   (->>
+    (-> root
+        (roa/relation :people)
+        roa/request
+        roa/coll-seq)
+    (map roa/request)
+    (map roa/data)
+    (filter #(= "PeopleInstitutionalGroup" (:subtype %)))
+    (map (fn [g] [(:institutional_id g) g]))
+    (into {}))
+   cheshire/generate-string
+   (cheshire/parse-string keyword)))
 
 
 ;### create new people ########################################################
 
 (defn create-person [data options root]
   (let [id (-> data :institutional_id str)
-        data (assoc data :subtype "PeopleInstitutionalGroup") ]
+        data (assoc data :subtype "PeopleInstitutionalGroup")]
     (info "Creating person " id " with data " (cheshire/generate-string data))
     (-> root
         (roa/relation :people)
@@ -94,7 +92,7 @@
             iperson-params (select-keys iperson  [:last_name :pseudonym])]
         (when (not= lperson-params iperson-params)
           (info "Updating person " (str id) " " (cheshire/generate-string iperson-params)
-                        " -> "(cheshire/generate-string lperson-params))
+                " -> " (cheshire/generate-string lperson-params))
           (update-person (str id) lperson-params root))))))
 
 ;### delete people ############################################################

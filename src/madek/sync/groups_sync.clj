@@ -1,14 +1,11 @@
 (ns madek.sync.groups-sync
   (:refer-clojure :exclude [str keyword])
   (:require
-    [cheshire.core :as cheshire]
-    [clojure.pprint :refer [pprint]]
-    [clojure.set :as set]
-    [json-roa.client.core :as roa]
-    [logbug.debug :as debug]
-    [madek.sync.utils :refer [str keyword]]
-    [taoensso.timbre :refer [debug info warn error spy]]
-    ))
+   [cheshire.core :as cheshire]
+   [clojure.set :as set]
+   [json-roa.client.core :as roa]
+   [madek.sync.utils :refer [keyword str]]
+   [taoensso.timbre :refer [debug info]]))
 
 (defn api-root [{base-url :madek-base-url token :madek-token}]
   (roa/get-root (str base-url "/api")
@@ -32,25 +29,25 @@
   and back for consisten keyword encoding."
   [root]
   (->
-    (->>
-      (-> root
-          (roa/relation :groups)
-          roa/request
-          roa/coll-seq)
-      (map roa/request)
-      (map roa/data)
-      (filter #(= "InstitutionalGroup" (:type %)))
-      (map (fn [g] [(:institutional_id g) g]))
-      (into {}))
-    cheshire/generate-string
-    (cheshire/parse-string keyword)))
+   (->>
+    (-> root
+        (roa/relation :groups)
+        roa/request
+        roa/coll-seq)
+    (map roa/request)
+    (map roa/data)
+    (filter #(= "InstitutionalGroup" (:type %)))
+    (map (fn [g] [(:institutional_id g) g]))
+    (into {}))
+   cheshire/generate-string
+   (cheshire/parse-string keyword)))
 
 
 ;### create new groups ########################################################
 
 (defn create-group [data options root]
   (let [id (-> data :institutional_id str)
-        data (assoc data :type "InstitutionalGroup") ]
+        data (assoc data :type "InstitutionalGroup")]
     (info "Creating group " id " with data " (cheshire/generate-string data))
     (-> root
         (roa/relation :groups)
@@ -87,10 +84,10 @@
       (let [lgroup (get lgroups id)
             igroup (get igroups id)
             lgroup-params (select-keys lgroup [:name :institutional_name])
-             igroup-params (select-keys igroup  [:name :institutional_name]) ]
+            igroup-params (select-keys igroup  [:name :institutional_name])]
         (when (not= lgroup-params igroup-params)
           (info "Updating group " (str id) " " (cheshire/generate-string igroup-params)
-                        " -> "(cheshire/generate-string lgroup-params))
+                " -> " (cheshire/generate-string lgroup-params))
           (update-group (str id) lgroup-params root))))))
 
 ;### delete groups ############################################################
@@ -116,7 +113,7 @@
   (info ">>>>>>>>>>>>>>>>> Syncing groups ....")
   (let [root (api-root options)]
     (check-connection! root)
-    (let [ lgroups (-> ldap-data :institutional-groups)]
+    (let [lgroups (-> ldap-data :institutional-groups)]
       (when-not (:skip-create-groups options)
         (create-missing-igroups root options lgroups))
       (when-not (:skip-update-groups options)

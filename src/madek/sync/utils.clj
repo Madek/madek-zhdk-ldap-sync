@@ -1,5 +1,6 @@
 (ns madek.sync.utils
-  (:refer-clojure :exclude [str keyword]))
+  (:refer-clojure :exclude [str keyword])
+  (:require [clojure.string]))
 
 (defn str
   "Like clojure.core/str but maps keywords to strings without preceding colon."
@@ -21,9 +22,10 @@
                 :else (clojure.core/keyword (str name))))
   ([ns name] (clojure.core/keyword ns name)))
 
-(defn presence [v]
+(defn presence
   "Returns nil if v is a blank string or if v is an empty collection.
-   Returns v otherwise."
+     Returns v otherwise."
+  [v]
   (cond
     (string? v) (if (clojure.string/blank? v) nil v)
     (coll? v) (if (empty? v) nil v)
