@@ -7,7 +7,6 @@
    [logbug.catcher :as catcher]
    [logbug.thrown]
    [madek.sync.data-file :as data-file]
-   [madek.sync.groups-sync :as groups-sync]
    [madek.sync.ldap-fetch :as ldap-fetch]
    [madek.sync.people-sync :as people-sync]
    [madek.sync.utils :refer [presence str]]
@@ -37,9 +36,6 @@
    ["-u" "--madek-base-url MADEK_BASE_URL"
     "Base URL of the Madek instance."
     :default (env-or-default :MADEK_BASE_URL)]
-   [nil "--skip-create-groups" "Skips creating new groups" :default false]
-   [nil "--skip-update-groups" "Skips updating new groups" :default false]
-   [nil "--delete-groups" "Delete institutional-groups found in Madek but not in LDAP" :default false]
    [nil "--skip-create-people" "Skips creating new people" :default false]
    [nil "--skip-update-people" "Skips updating new people" :default false]
    [nil "--delete-people" "Delete institutional-people found in Madek but not in LDAP" :default false]
@@ -96,8 +92,7 @@
                 (ldap-fetch/run options))]
      (if (:output-file options)
        (data-file/run-write data options)
-       (do (groups-sync/run data options)
-           (people-sync/run data options))))
+       (people-sync/run data options)))
    (info "Madek LDAP Sync done."))
   (System/exit 0))
 
