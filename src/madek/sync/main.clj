@@ -9,8 +9,9 @@
    [madek.sync.data-file :as data-file]
    [madek.sync.ldap-fetch :as ldap-fetch]
    [madek.sync.people-sync :as people-sync]
-   [madek.sync.utils :refer [str keyword presence]]
-   [taoensso.timbre :refer [debug info warn error spy]])
+   [madek.sync.prtg :as prtg]
+   [madek.sync.utils :refer [presence str]]
+   [taoensso.timbre :refer [error info]])
   (:gen-class))
 
 
@@ -50,7 +51,10 @@
     :default (env-or-default :LDAP_BIND_DN)]
    [nil "--ldap-password LDAP_PASSWORD"
     "Password used to bind against the LDAP server."
-    :default (System/getenv "LDAP_PASSWORD")]])
+    :default (System/getenv "LDAP_PASSWORD")]
+   [nil "--prtg-url PRTG_URL"
+    "Success or error will be sent to PRTG when present. Defaults to env var `PRTG_URL`"
+    :default (env-or-default :PRTG_URL)]])
 
 (defn usage [options-summary & more]
   (->> ["Madek ZHdK LDAP Sync"
@@ -83,17 +87,36 @@
 
 ;;; RUN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn- log-success
+  ([results] (log-success results nil))
+  ([results prtg-url]
+   (let [stats (frequencies results)]
+     (info "Success" stats)
+     (when prtg-url
+       (info "Sending to PRTG...")
+       (prtg/send-success prtg-url stats)))))
+
+(defn- log-error
+  ([ex] (log-error ex nil))
+  ([ex prtg-url]
+   (error ex)
+   (when prtg-url
+     (info "Sending to PRTG...")
+     (prtg/send-error prtg-url (.getMessage ex)))))
+
 (defn run [options]
-  (catcher/snatch
-   {:return-fn (fn [_] (System/exit -1))}
-   (info "Madek LDAP Sync ....")
-   (let [data (if (:input-file options)
-                (data-file/run-read options)
-                (ldap-fetch/run options))]
-     (if (:output-file options)
-       (data-file/run-write data options)
-       (people-sync/run data options)))
-   (info "Madek LDAP Sync done."))
-  (System/exit 0))
-
-
+  (let [prtg-url (:prtg-url options)]
+    (catcher/snatch
+     {:return-fn (fn [ex]
+                   (log-error ex prtg-url)
+                   (System/exit -1))}
+     (info "Madek LDAP Sync ....")
+     (let [data (if (:input-file options)
+                  (data-file/run-read options)
+                  (ldap-fetch/run options))]
+       (if (:output-file options)
+         (data-file/run-write data options)
+         (people-sync/run data options)))
+     (info "Madek LDAP Sync done.")
+     (log-success [:success] prtg-url)
+     (System/exit 0))))
