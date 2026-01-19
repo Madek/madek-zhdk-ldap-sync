@@ -18,9 +18,9 @@ else
     exit 1
 fi
 
-if [ -f "${PROJECT_DIR}/ansible-requirements.txt" ]; then
+if [ -f "${PROJECT_DIR}/deploy/ansible-requirements.txt" ]; then
     echo "Installing dependencies from ansible-requirements.txt"
-    pip install -r "${PROJECT_DIR}/ansible-requirements.txt"
+    pip install -r "${PROJECT_DIR}/deploy/ansible-requirements.txt"
 else
     echo "No ansible-requirements.txt found, skipping dependency installation"
 fi
