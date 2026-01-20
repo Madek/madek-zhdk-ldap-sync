@@ -3,11 +3,11 @@ Description=Madek ZHdK Sync Service
 After=syslog.target
 After=network.target
 
-BindsTo=madek-api.service
-
 [Service]
 Type=oneshot
 RemainAfterExit=false
+RestartSec=300
+StartLimitBurst=2
 WorkingDirectory={{madek_zhdk_sync_root_dir}}
 User={{madek_zhdk_sync_user}}
 Environment=MADEK_BASE_URL=https://{{madek_external_hostname}}
