@@ -13,6 +13,9 @@ User={{madek_zhdk_sync_user}}
 Environment=MADEK_BASE_URL=https://{{madek_external_hostname}}
 Environment=MADEK_TOKEN={{zhdk_sync_api_token}}
 Environment=LDAP_PASSWORD={{zhdk_sync_ldap_password}}
+{% if ldap_sync_prtg_url is defined %}
+Environment=PRTG_URL={{ldap_sync_prtg_url}}
+{% endif %}
 ExecStart=/usr/bin/java "-Xmx1014m" "-jar" "{{uberjar_path}}" "run"
 
 [Install]
