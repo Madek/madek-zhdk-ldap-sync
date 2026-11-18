@@ -10,7 +10,7 @@ jobs:
       tasks:
         build:
           traits:
-            asdf: true
+            mise: true
           scripts:
             uberjar:
               body: |
@@ -29,7 +29,7 @@ jobs:
       tasks:
         check_environment:
           traits:
-            asdf: true
+            mise: true
           scripts:
             check_ansible_version:
               body: |
